@@ -131,6 +131,11 @@ def ceph_log(ctx, config):
                     # ConnectionLostError, we ignore this because nodes
                     # are allowed to get power cycled during tests.
                     log.debug("Missed logrotate, EOFError")
+                except OSError as e:
+                    if e.errno == errno.EHOSTUNREACH:
+                        log.debug("Missed logrotate, host unreachable")
+                    else:
+                        raise
 
         def begin(self):
             self.thread = gevent.spawn(self.invoke_logrotate)
